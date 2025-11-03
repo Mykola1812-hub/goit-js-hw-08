@@ -72,7 +72,7 @@ function galleryTemplate({original, preview, description}) {
     <li class="gallery-item">
       <a class="gallery-link" href="${original}">
         <img
-          class="v"
+          class="gallery-image"
           src="${preview}"
           data-source="${original}"
           alt="${description}"
@@ -84,11 +84,43 @@ function galleryTemplate({original, preview, description}) {
 
 function galleryTemplates(images) {
     return images.map(galleryTemplate).join('');
-  }
+}
 
 listGallery.innerHTML = galleryTemplates(images)
   
-const link = document.querySelector('.gallery-link')
-link.addEventListener("click", event =>
+listGallery.addEventListener("click", event => {
+
+    if (event.target.tagName !== 'IMG') {
+        return;
+    }
+
     event.preventDefault()
-)
+
+    const originalUrl = event.target.dataset.source;
+    console.log(originalUrl)
+  
+    const item = images.find(el => el.original === originalUrl);
+  
+    showModal(item);
+})
+
+function showModal({ original, description }) {
+    const instance = basicLightbox.create(`
+      <div class="modal">
+        <img src="${original}" alt="${description}" />
+      </div>
+    `);
+    
+    instance.show()
+
+    const closeModal = elem => 
+    {
+        if (elem.key === 'Escape') {
+            instance.close()
+            window.removeEventListener('keydown', closeModal);
+        }
+    }
+    window.addEventListener('keydown', closeModal);
+}
+
+
